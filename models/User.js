@@ -41,7 +41,7 @@ var UserSchema = new Schema({
     Contact_Person: String,
     Contact_Phone_Nr: Number,
     Referred_By: String,
-    Date_Submitted: String,
+    Date_Submitted: Date,
     Email_Verified:{ type: Boolean, default: false },
 });
 

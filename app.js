@@ -11,6 +11,7 @@ var nodemailer = require("nodemailer");
 var isProduction = process.env.NODE_ENV === 'production';
 
 require('./models/User');
+require('./models/VerifyToken');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
