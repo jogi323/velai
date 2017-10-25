@@ -1,0 +1,91 @@
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var mongooseUniqueValidator = require('mongoose-unique-validator');
+var crypto = require('crypto');
+var jwt = require('jsonwebtoken');
+var secret = require('../config').secret;
+
+var UserSchema = new Schema({
+    Firstname : String,
+    Lastname : String,
+    Email_Address: {type: String, lowercase: true, unique: true, required: [true, "can't be blank"], match: [/\S+@\S+\.\S+/, 'is invalid'], index: true},
+    hash: String,
+    salt: String,
+    userType : {
+      type : String,
+      enum : ['jobseeker', 'employer'],
+      default: 'jobseeker'
+    },
+    Address_street : String,
+    Address_Unit: String,
+    City : String,
+    State : String,
+    Zip_Code: Number,
+    Phone1:Number,
+    Phone2:Number,
+    Position:String,
+    Experience:Number,
+    Hourly_Pay:Number,
+    Practice_Name: String,
+    image:String,
+    Speciality: String,
+    Practice_Phone: Number,
+    Nr_of_Operations: Number,
+    Nr_of_Staff: Number,
+    Travel_Distance:Number,
+    Languages: String,
+    Dental_School: String,
+    Year_Graduated: Number,
+    License_Nr: String,
+    Years_in_Practice: Number,
+    Contact_Person: String,
+    Contact_Phone_Nr: Number,
+    Referred_By: String,
+    Date_Submitted: String,
+    Email_Verified:{ type: Boolean, default: false },
+});
+
+UserSchema.plugin(mongooseUniqueValidator, {message: 'is already taken.'});
+
+UserSchema.methods.validPassword = function(Password) {
+  var hash = crypto.pbkdf2Sync(Password, this.salt, 10000, 512, 'sha512').toString('hex');
+  return this.hash === hash;
+};
+
+UserSchema.methods.setPassword = function(Password){
+  this.salt = crypto.randomBytes(16).toString('hex');
+  this.hash = crypto.pbkdf2Sync(Password, this.salt, 10000, 512, 'sha512').toString('hex');
+};
+
+UserSchema.methods.generateJWT = function() {
+  var today = new Date();
+  var exp = new Date(today);
+  exp.setDate(today.getDate() + 60);
+
+  return jwt.sign({
+    id: this._id,
+    Email_Address: this.Email_Address,
+    exp: parseInt(exp.getTime() / 1000),
+  }, secret);
+};
+
+UserSchema.methods.toAuthJSON = function(){
+  return {
+    Email_Address: this.Email_Address,
+    Firstname: this.Firstname,
+    Lastname: this.Lastname,
+    userType : this.userType
+  };
+};
+
+UserSchema.methods.toProfileJSONFor = function(user){
+  return {
+    Email_Address: this.Email_Address,
+    Firstname: this.Firstname,
+    Lastname: this.Lastname,
+    //image: this.image || 'https://static.productionready.io/images/smiley-cyrus.jpg',
+  };
+};
+
+mongoose.model('User', UserSchema);
+

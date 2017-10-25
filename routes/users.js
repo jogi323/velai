@@ -1,15 +1,38 @@
 var express = require('express');
 var router = express.Router();
-var bcrypt = require('bcryptjs');
-var User = require('../models/user');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+var bcrypt = require('bcryptjs');
 
-var jwt = require('jsonwebtoken');
+//var User = require('../models/User');
+var auth = require('./auth');
+
+var nodemailer = require("nodemailer");
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+router.get('/auth', auth.required, function(req, res, next) {
+    User.findById(req.payload.id, function(err,user){
+        if (err) {
+            console.log(err);
+            return res.status(500).json({
+                title: 'An error occurred',
+                error: err
+            });
+        }    
+        if (!user) {
+            return res.status(401).json({
+                title: 'Not Authorised',
+                error: {message: 'Login Again'}
+            });
+        }else{
+            var token = user.generateJWT();
+            var user = user.toAuthJSON();
+            res.status(200).json({
+                token: token,
+                user: user
+            });
+        }
+    })
 });
 
 router.post('/auth', function(req, res, next) {
@@ -27,13 +50,14 @@ router.post('/auth', function(req, res, next) {
             error: {message: 'Invalid login credentials'}
         });
     }
-    if (!bcrypt.compareSync(req.body.Password, user.Password)) {
+    if (!user.validPassword(req.body.Password)) {
         return res.status(401).json({
             title: 'Login failed',
             error: {message: 'Invalid login credentials'}
         });
     }
-    var token = jwt.sign({user: user}, 'secret', {expiresIn: 7200});
+    var token = user.generateJWT();
+    var user = user.toAuthJSON();
     res.status(200).json({
         message: 'Successfully logged in',
         token: token,
@@ -49,7 +73,7 @@ router.post('/save', function(req, res, next) {
     user.Firstname = req.body.Firstname;
     user.LastName = req.body.LastName;
     user.Referred_By = req.body.Referred_By;
-    user.Password = bcrypt.hashSync(req.body.Password, 10);
+    user.setPassword(req.body.Password);
     user.Email_Address = req.body.Email_Address;
 
   user.save(function(err, result) {

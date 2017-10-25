@@ -5,13 +5,20 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var cors = require('cors');
+var nodemailer = require("nodemailer");
 
 var isProduction = process.env.NODE_ENV === 'production';
+
+require('./models/User');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
+
+app.use(cors());
+
 mongoose.connect('mongodb://ashokona:FightClub@ds038319.mlab.com:38319/jobportal');
 
 // view engine setup
@@ -26,13 +33,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+
 app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, PATCH, DELETE, OPTIONS');
   next();
 });
-
 
 app.use('/', index);
 app.use('/user', users);
