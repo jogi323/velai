@@ -42,7 +42,7 @@ var UserSchema = new Schema({
     Contact_Phone_Nr: Number,
     Referred_By: String,
     Date_Submitted: Date,
-    Email_Verified:{ type: Boolean, default: false },
+    Email_Verified:{ type: Boolean, default: false }
 });
 
 UserSchema.plugin(mongooseUniqueValidator, {message: 'is already taken.'});

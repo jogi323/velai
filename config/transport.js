@@ -1,10 +1,22 @@
-var transport = nodemailer.createTransport("SMTP", {
-    service: "Gmail",
+var transporter = nodemailer.createTransport({
+    service: 'Gmail',
     auth: {
-        user: "slvrsmiles@gmail.com",
-        pass: "9030822245"
+      user: 'ashokona@gmail.com',
+      pass: 'F!ghtClub'
     }
-});
+  });
+
+
+
+  transport.close();
+  
+//   var mailOptions = {
+//     from: "ashokona@gmail.com",
+//     to: user.Email_Address,
+//     subject: "Account Verification Token",
+//     generateTextFromHTML: true,
+//     html: '<p>hi</P>'
+//   };
 
 // Send the email
 // smtpTrans = nodemailer.createTransport({
@@ -19,4 +31,3 @@ var transport = nodemailer.createTransport("SMTP", {
 //           }
 //     }
 // })
-transport.close();

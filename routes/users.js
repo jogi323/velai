@@ -4,10 +4,7 @@ var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var VerifyToken = mongoose.model('VerifyToken');
 var crypto = require('crypto');
-
-//var User = require('../models/User');
 var auth = require('./auth');
-
 var nodemailer = require("nodemailer");
 
 /* GET users listing. */
@@ -71,20 +68,12 @@ router.post('/auth', function(req, res, next) {
             var transporter = nodemailer.createTransport({
                 service: 'Gmail',
                 auth: {
-                  user: 'ashokona@gmail.com',
-                  pass: 'F!ghtClub'
+                    user: 'ashokona@gmail.com',
+                    pass: 'F!ghtClub'
                 }
-              });
-
-              var mailOptions = {
-                from: "ashokona@gmail.com",
-                to: user.Email_Address,
-                subject: "Account Verification Token",
-                generateTextFromHTML: true,
-                html: '<p>hi</P>'
-              };
+            });
               
-             var mailOptions = { from: 'ashokona@gmail.com', to: user.Email_Address, subject: 'Account Verification Token', text: 'Hello,\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/user'+'\/confirmation\/' + token.token + '.\n' };
+            var mailOptions = { from: 'ashokona@gmail.com', to: user.Email_Address, subject: 'Account Verification Token', text: 'Hello,\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/user'+'\/confirmation\/' + token.token + '.\n' };
             transporter.sendMail(mailOptions, function (err) {
                 if (err) { 
                     return res.status(500).json({
@@ -120,11 +109,9 @@ router.post('/save', function(req, res, next) {
     user.Referred_By = req.body.Referred_By;
     user.setPassword(req.body.Password);
     user.Email_Address = req.body.Email_Address;
-    user.Date_Submitted = req.body.Date_Submitted;
 
   user.save(function(err, result) {
       if (err) {
-          console.log(err)
           return res.status(500).json({
               title: 'An error occurred',
               error: err
@@ -194,8 +181,132 @@ router.get('/confirmation/:id', function(req, res, next) {
     });
 });
 
-router.get('/update', function(req, res, next) {
-  res.send('respond with a resource');
+router.put('/update/personal', auth.required, function(req, res, next) {
+    User.findById(req.payload.id, function(err,user){
+        if (err) {
+            console.log(err);
+            return res.status(500).json({
+                title: 'An error occurred',
+                error: err
+            });
+        }    
+        if (!user) {
+            return res.status(401).json({
+                title: 'Not Authorised',
+                error: {message: 'Login Again'}
+            });
+        }
+        else{
+            if(typeof req.body.Firstname !== 'undefined'){
+                user.Firstname = req.body.Firstname;
+            }
+            if(typeof req.body.Lastname !== 'undefined'){
+                user.Lastname = req.body.Lastname;
+            }
+            if(typeof req.Address_street !== 'undefined'){
+                user.Address_street = req.body.Address_street;
+            }
+            if(typeof req.body.Address_Unit !== 'undefined'){
+                user.Address_Unit = req.body.Address_Unit;
+            }
+            if(typeof req.body.City !== 'undefined'){
+                user.City = req.body.City;
+            }
+            if(typeof req.body.State !== 'undefined'){
+                user.State = req.body.State;
+            }
+            if(typeof req.body.Zip_Code !== 'undefined'){
+                user.Zip_Code = req.body.Zip_Code;
+            }
+            if(typeof req.body.Phone1 !== 'undefined'){
+                user.Phone1 = req.body.Phone1;
+            }
+            if(typeof req.body.Phone2 !== 'undefined'){
+                user.Phone2 = req.body.Phone2;
+            }
+            user.save(function (err) {
+                if (err) { return res.status(500).json({ title: 'Personal Information Not Updaed',error: err }); }  
+                res.status(200).json({ message: 'Personal information updated sucessfully' });
+            });
+        }
+
+    })
+});
+
+router.put('/update/work', auth.required, function(req, res, next) {
+    User.findById(req.payload.id, function(err,user){
+        if (err) {
+            console.log(err);
+            return res.status(500).json({
+                title: 'An error occurred',
+                error: err
+            });
+        }    
+        if (!user) {
+            return res.status(401).json({
+                title: 'Not Authorised',
+                error: {message: 'Login Again'}
+            });
+        }
+        else{
+            if(typeof req.body.Position !== 'undefined'){
+                user.Position = req.body.Position;
+            }
+            if(typeof req.body.Experience !== 'undefined'){
+                user.Experience = req.body.Experience;
+            }
+            if(typeof req.Hourly_Pay !== 'undefined'){
+                user.Hourly_Pay = req.body.Hourly_Pay;
+            }
+            if(typeof req.body.Practice_Name !== 'undefined'){
+                user.Practice_Name = req.body.Practice_Name;
+            }
+            if(typeof req.body.image !== 'undefined'){
+                user.image = req.body.image;
+            }
+            if(typeof req.body.Speciality !== 'undefined'){
+                user.Speciality = req.body.Speciality;
+            }
+            if(typeof req.body.Practice_Phone !== 'undefined'){
+                user.Practice_Phone = req.body.Practice_Phone;
+            }
+            if(typeof req.body.Nr_of_Operations !== 'undefined'){
+                user.Nr_of_Operations = req.body.Nr_of_Operations;
+            }
+            if(typeof req.body.Nr_of_Staff !== 'undefined'){
+                user.Nr_of_Staff = req.body.Nr_of_Staff;
+            }
+            if(typeof req.body.Travel_Distance !== 'undefined'){
+                user.Travel_Distance = req.body.Travel_Distance;
+            }
+            if(typeof req.body.Languages !== 'undefined'){
+                user.Languages = req.body.Languages;
+            }
+            if(typeof req.body.Dental_School !== 'undefined'){
+                user.Dental_School = req.body.Dental_School;
+            }
+            if(typeof req.body.Year_Graduated !== 'undefined'){
+                user.Year_Graduated = req.body.Year_Graduated;
+            }
+            if(typeof req.body.License_Nr !== 'undefined'){
+                user.License_Nr = req.body.License_Nr;
+            }
+            if(typeof req.body.Years_in_Practice !== 'undefined'){
+                user.Years_in_Practice = req.body.Years_in_Practice;
+            }
+            if(typeof req.body.Contact_Person !== 'undefined'){
+                user.Contact_Person = req.body.Contact_Person;
+            }
+            if(typeof req.body.Contact_Phone_Nr !== 'undefined'){
+                user.Contact_Phone_Nr = req.body.Contact_Phone_Nr;
+            }
+            user.save(function (err) {
+                if (err) { return res.status(500).json({ title: 'Work Information Not Updaed',error: err }); }  
+                res.status(200).json({ message: 'Work information updated sucessfully' });
+            });
+        }
+
+    })
 });
 
 module.exports = router;
