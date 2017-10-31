@@ -182,18 +182,37 @@ router.get('/confirmation/:id', function(req, res, next) {
     });
 });
 
-router.get('/getProfile/:id', function(req,res,next){
-    User.find({Email_Address:req.params.id},function(err,user){
-        if(err){
+router.get('/getProfile/:id', auth.required, function(req, res, next) {
+    User.findById(req.payload.id, function(err,user){
+        if (err) {
+            console.log(err);
             return res.status(500).json({
                 title: 'An error occurred',
                 error: err
             });
-        }else{
-            res.status(200).json({data : user})
+        }    
+        if (!user) {
+            return res.status(401).json({
+                title: 'Not Authorised',
+                error: {message: 'Login Again'}
+            });
         }
-    });
+        else{
+            User.find({Email_Address:req.params.id},function(err,user){
+                if(err){
+                    return res.status(500).json({
+                        title: 'An error occurred',
+                        error: err
+                    });
+                }else{
+                    res.status(200).json({data : user})
+                }
+            });
+        }
+
+    })
 });
+
 router.put('/update/personal', auth.required, function(req, res, next) {
     User.findById(req.payload.id, function(err,user){
         if (err) {

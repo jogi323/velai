@@ -7,13 +7,44 @@ var VerifyToken = mongoose.model('VerifyToken');
 var crypto = require('crypto');
 var auth = require('./auth');
 
-router.post('/save', auth.required, function(req, res, next) {
+router.get('/all', auth.required, function(req, res, next) {
     User.findById(req.payload.id, function(err,user){
         if (err) { return res.status(500).json({ title: 'An error occurred',error: err }); }    
         if (!user) { return res.status(401).json({ title: 'Not Authorised', error: {message: 'Login Again'} }) }
         else{
-            var AvailabilitiesList = req.body;
-            var SavedavailabilitiesLength = 0;
+            Availabilities.find({JS_id:user._id},function(err,result){
+                if (err) { return res.status(500).json({ title: 'An error occurred',error: err }); } 
+                res.status(200).json({
+                    data: result
+                });
+            })
+        }
+    })
+});
+
+router.post('/day', auth.required, function(req, res, next) {
+    User.findById(req.payload.id, function(err,user){
+        if (err) { return res.status(500).json({ title: 'An error occurred',error: err }); }    
+        if (!user) { return res.status(401).json({ title: 'Not Authorised', error: {message: 'Login Again'} }) }
+        else{
+            Availabilities.find({Date:req.body.Date},function(err,result){
+                if (err) { return res.status(500).json({ title: 'An error occurred',error: err }); } 
+                res.status(200).json({
+                    data: result
+                });
+            })
+        }
+    })
+});
+
+router.post('/save', auth.required, function(req, res, next) {
+    var AvailabilitiesList = req.body;
+    var SavedavailabilitiesLength = 0;
+    User.findById(req.payload.id, function(err,user){
+        if (err) { return res.status(500).json({ title: 'An error occurred',error: err }); }    
+        if (!user) { return res.status(401).json({ title: 'Not Authorised', error: {message: 'Login Again'} }) }
+        else{
+
             AvailabilitiesList.forEach(function(availabilities) {
                 Availabilities.find({'Date':availabilities.Date},function (err, avail){
                     if(err){
@@ -35,9 +66,13 @@ router.post('/save', auth.required, function(req, res, next) {
                         avail[0].save(function (err, result) {
                             if (err) { return res.status(500).json({ title: 'Work Information Not Updaed',error: err }); }  
                             else{
-                                AvailabilitiesList = AvailabilitiesList.splice(0, 1);
+                                AvailabilitiesList.splice(0, 1);
+                                if(AvailabilitiesList.length === 0){
+                                    res.status(200).json({
+                                        message: 'Saved successfully',
+                                    });
+                                }
                             }
-                            //res.status(200).json({ message: 'updated sucessfully' });
                         });
                     }
                     else{
@@ -52,29 +87,19 @@ router.post('/save', auth.required, function(req, res, next) {
                         availability.save(function(err, result){
                             if (err) { return res.status(500).json({ title: 'There was problem inserting Data',error: err }); }  
                             else{
-                                AvailabilitiesList = AvailabilitiesList.splice(0, 1);
+                                AvailabilitiesList.splice(0, 1);
+                                if(AvailabilitiesList === 0){
+                                    res.status(200).json({
+                                        message: 'Saved successfully',
+                                    });
+                                }
                             }
                         })
                     }
                 })
-                console.log(AvailabilitiesList);
+                
             });
-            
         }
-        // else{
-        //     var AvailabilitiesList = req.body;
-        //     var AvailabilitiesLength = req.body.length;
-        //     req.body.forEach(function(Availability) {
-        //         Availability.JS_id = user;
-        //     }, this);
-
-        //     Availabilities.create(AvailabilitiesList, function (err, result) {
-        //         if (err){
-        //             console.log(err)
-        //         }
-        //         console.log(result)
-        //       });
-        // }
     })
 });
 
