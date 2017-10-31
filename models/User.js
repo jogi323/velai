@@ -13,8 +13,6 @@ var UserSchema = new Schema({
     salt: String,
     userType : {
       type : String,
-      enum : ['jobseeker', 'employer'],
-      default: 'jobseeker'
     },
     Address_street : String,
     Address_Unit: String,
