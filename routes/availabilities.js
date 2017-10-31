@@ -35,7 +35,7 @@ router.post('/save', auth.required, function(req, res, next) {
                         avail[0].save(function (err, result) {
                             if (err) { return res.status(500).json({ title: 'Work Information Not Updaed',error: err }); }  
                             else{
-                                AvailabilitiesList
+                                AvailabilitiesList = AvailabilitiesList.splice(0, 1);
                             }
                             //res.status(200).json({ message: 'updated sucessfully' });
                         });
@@ -52,12 +52,12 @@ router.post('/save', auth.required, function(req, res, next) {
                         availability.save(function(err, result){
                             if (err) { return res.status(500).json({ title: 'There was problem inserting Data',error: err }); }  
                             else{
-                                SavedavailabilitiesLength = SavedavailabilitiesLength + 1;
+                                AvailabilitiesList = AvailabilitiesList.splice(0, 1);
                             }
                         })
                     }
                 })
-                console.log(SavedavailabilitiesLength);
+                console.log(AvailabilitiesList);
             });
             
         }
