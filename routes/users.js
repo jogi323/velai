@@ -109,6 +109,7 @@ router.post('/save', function(req, res, next) {
     user.Referred_By = req.body.Referred_By;
     user.setPassword(req.body.Password);
     user.Email_Address = req.body.Email_Address;
+    user.userType = req.body.userType;
 
   user.save(function(err, result) {
       if (err) {
@@ -181,6 +182,18 @@ router.get('/confirmation/:id', function(req, res, next) {
     });
 });
 
+router.get('/getProfile/:id', function(req,res,next){
+    User.find({Email_Address:req.params.id},function(err,user){
+        if(err){
+            return res.status(500).json({
+                title: 'An error occurred',
+                error: err
+            });
+        }else{
+            res.status(200).json({data : user})
+        }
+    });
+});
 router.put('/update/personal', auth.required, function(req, res, next) {
     User.findById(req.payload.id, function(err,user){
         if (err) {
@@ -203,7 +216,7 @@ router.put('/update/personal', auth.required, function(req, res, next) {
             if(typeof req.body.Lastname !== 'undefined'){
                 user.Lastname = req.body.Lastname;
             }
-            if(typeof req.Address_street !== 'undefined'){
+            if(typeof req.body.Address_street !== 'undefined'){
                 user.Address_street = req.body.Address_street;
             }
             if(typeof req.body.Address_Unit !== 'undefined'){
@@ -224,9 +237,12 @@ router.put('/update/personal', auth.required, function(req, res, next) {
             if(typeof req.body.Phone2 !== 'undefined'){
                 user.Phone2 = req.body.Phone2;
             }
+            if(typeof req.body.image !== 'undefined'){
+                user.image = req.body.image;
+            }
             user.save(function (err) {
-                if (err) { return res.status(500).json({ title: 'Personal Information Not Updaed',error: err }); }  
-                res.status(200).json({ message: 'Personal information updated sucessfully' });
+                if (err) { return res.status(500).json({ title: 'Personal Information Not Updated',error: err }); }  
+                res.status(200).json({ message: 'Personal information updated sucessfully',flag:1 });
             });
         }
 
@@ -302,7 +318,7 @@ router.put('/update/work', auth.required, function(req, res, next) {
             }
             user.save(function (err) {
                 if (err) { return res.status(500).json({ title: 'Work Information Not Updaed',error: err }); }  
-                res.status(200).json({ message: 'Work information updated sucessfully' });
+                res.status(200).json({ message: 'Work information updated sucessfully',flag:1 });
             });
         }
 
