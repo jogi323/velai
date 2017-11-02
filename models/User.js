@@ -21,6 +21,10 @@ var UserSchema = new Schema({
     Zip_Code: Number,
     Phone1:Number,
     Phone2:Number,
+    locationLat:Number,
+    locationLng: Number,
+    personalInfo:{ type: Boolean, default: true },
+    workInfo:{ type: Boolean, default: true },
     Position:String,
     Experience:Number,
     Hourly_Pay:Number,
@@ -72,7 +76,9 @@ UserSchema.methods.toAuthJSON = function(){
     Email_Address: this.Email_Address,
     Firstname: this.Firstname,
     Lastname: this.Lastname,
-    userType : this.userType
+    userType : this.userType,
+    personalInfo : this.personalInfo,
+    workInfo : this.workInfo,
   };
 };
 

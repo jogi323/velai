@@ -198,7 +198,7 @@ router.get('/getProfile/:id', auth.required, function(req, res, next) {
             });
         }
         else{
-            User.find({Email_Address:req.params.id},function(err,user){
+            User.findOne({Email_Address:req.params.id},function(err,user){
                 if(err){
                     return res.status(500).json({
                         title: 'An error occurred',
@@ -259,6 +259,13 @@ router.put('/update/personal', auth.required, function(req, res, next) {
             if(typeof req.body.image !== 'undefined'){
                 user.image = req.body.image;
             }
+            if(typeof req.body.locationLat !== 'undefined'){
+                user.locationLat = req.body.locationLat;
+            }
+            if(typeof req.body.locationLng !== 'undefined'){
+                user.locationLng = req.body.locationLng;
+            }
+            user.personalInfo = false;
             user.save(function (err) {
                 if (err) { return res.status(500).json({ title: 'Personal Information Not Updated',error: err }); }  
                 res.status(200).json({ message: 'Personal information updated sucessfully',flag:1 });
@@ -290,7 +297,7 @@ router.put('/update/work', auth.required, function(req, res, next) {
             if(typeof req.body.Experience !== 'undefined'){
                 user.Experience = req.body.Experience;
             }
-            if(typeof req.Hourly_Pay !== 'undefined'){
+            if(typeof req.body.Hourly_Pay !== 'undefined'){
                 user.Hourly_Pay = req.body.Hourly_Pay;
             }
             if(typeof req.body.Practice_Name !== 'undefined'){
@@ -335,6 +342,7 @@ router.put('/update/work', auth.required, function(req, res, next) {
             if(typeof req.body.Contact_Phone_Nr !== 'undefined'){
                 user.Contact_Phone_Nr = req.body.Contact_Phone_Nr;
             }
+            user.workInfo = false;
             user.save(function (err) {
                 if (err) { return res.status(500).json({ title: 'Work Information Not Updaed',error: err }); }  
                 res.status(200).json({ message: 'Work information updated sucessfully',flag:1 });

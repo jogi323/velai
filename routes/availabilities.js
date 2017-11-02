@@ -22,17 +22,78 @@ router.get('/all', auth.required, function(req, res, next) {
     })
 });
 
-router.post('/day', auth.required, function(req, res, next) {
+router.post('/query', auth.required, function(req, res, next) {
+    console.log(req.body)
     User.findById(req.payload.id, function(err,user){
         if (err) { return res.status(500).json({ title: 'An error occurred',error: err }); }    
         if (!user) { return res.status(401).json({ title: 'Not Authorised', error: {message: 'Login Again'} }) }
         else{
-            Availabilities.find({Date:req.body.Date},function(err,result){
-                if (err) { return res.status(500).json({ title: 'An error occurred',error: err }); } 
-                res.status(200).json({
-                    data: result
-                });
-            })
+            if(typeof  req.body.Date !== 'undefined' && typeof req.body.Hours_Guaranteed == 'undefined'){
+                Availabilities.find({Date:req.body.Date})
+                    .where('Hired').eq('NotHired')
+                    .populate({
+                        path: 'JS_id',
+                        // match: { Position: { $eq: 'Dental Assistant' }, Hourly_Pay: { $eq: 5 }},
+                        select: ['Position', 'Lastname', 'Hourly_Pay', 'Experience', 'Zip_Code', 'locationLat', 'locationLng'],
+                    })
+                    .exec(function(err,result){
+                        if (err) { return res.status(500).json({ title: 'An error occurred',error: err }); } 
+                        res.status(200).json({
+                            data: result
+                        });
+                    })
+            }else if( typeof req.body.Hours_Guaranteed !== 'undefined'){
+                Availabilities.find({Date:req.body.Date})
+                    .where('Hired').eq('NotHired')
+                    .where('Hours_Guaranteed').eq(req.body.Hours_Guaranteed)
+                // .populate('JS_id')
+                .populate({
+                    path: 'JS_id',
+                    select: ['Position', 'Lastname', 'Hourly_Pay', 'Experience', 'Zip_Code', 'locationLat', 'locationLng'],
+                })
+                .exec(function(err,result){
+                    if (err) { return res.status(500).json({ title: 'An error occurred',error: err }); } 
+                    res.status(200).json({
+                        data: result
+                    });
+                })
+            }
+            else if(req.body.Position != 'undefined'){
+                Availabilities.find({Date:req.body.Date})
+                    .where('Hired').eq('NotHired')
+                    .where('Hours_Guaranteed').eq(req.body.Hours_Guaranteed)
+                // .populate('JS_id')
+                .populate({
+                    path: 'JS_id',
+                    match: { Position: { $eq: req.body.Position }},                    
+                    select: ['Position', 'Lastname', 'Hourly_Pay', 'Experience', 'Zip_Code', 'locationLat', 'locationLng'],
+                })
+                .exec(function(err,result){
+                    if (err) { return res.status(500).json({ title: 'An error occurred',error: err }); } 
+                    res.status(200).json({
+                        data: result
+                    });
+                })
+            }
+            else if(req.body.Hourly_Pay != 'undefined'){
+                Availabilities.find({Date:req.body.Date})
+                    .where('Hired').eq('NotHired')
+                    .where('Hours_Guaranteed').eq(req.body.Hours_Guaranteed)
+                // .populate('JS_id')
+                .populate({
+                    path: 'JS_id',
+                    match: { Position: { $eq: req.body.Position }, Hourly_Pay: { $eq: req.body.Hourly_Pay }},
+                    select: ['Position', 'Lastname', 'Hourly_Pay', 'Experience', 'Zip_Code', 'locationLat', 'locationLng'],
+                })
+                .exec(function(err,result){
+                    if (err) { return res.status(500).json({ title: 'An error occurred',error: err }); } 
+                    res.status(200).json({
+                        data: result
+                    });
+                })
+            }
+
+            
         }
     })
 });
