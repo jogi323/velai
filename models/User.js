@@ -44,7 +44,9 @@ var UserSchema = new Schema({
     Contact_Phone_Nr: Number,
     Referred_By: String,
     Date_Submitted: Date,
-    Email_Verified:{ type: Boolean, default: false }
+    Email_Verified:{ type: Boolean, default: false },
+    Payments_id: [{type: Schema.Types.ObjectId, ref: 'Payments'}],
+    Offers_id: [{type: Schema.Types.ObjectId, ref: 'Offers'}],    
 });
 
 UserSchema.plugin(mongooseUniqueValidator, {message: 'is already taken.'});

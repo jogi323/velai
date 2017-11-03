@@ -4,7 +4,6 @@ var mongoose = require('mongoose');
 var Availabilities = mongoose.model('Availabilities');
 var User = mongoose.model('User');
 var VerifyToken = mongoose.model('VerifyToken');
-var crypto = require('crypto');
 var auth = require('./auth');
 
 router.get('/all', auth.required, function(req, res, next) {
@@ -149,7 +148,7 @@ router.post('/save', auth.required, function(req, res, next) {
                             if (err) { return res.status(500).json({ title: 'There was problem inserting Data',error: err }); }  
                             else{
                                 AvailabilitiesList.splice(0, 1);
-                                if(AvailabilitiesList === 0){
+                                if(AvailabilitiesList.length === 0){
                                     res.status(200).json({
                                         message: 'Saved successfully',
                                     });
@@ -160,6 +159,22 @@ router.post('/save', auth.required, function(req, res, next) {
                 })
                 
             });
+        }
+    })
+});
+
+router.delete('/purge/:id', auth.required, function(req, res, next) {
+    console.log(req.params.id)
+    User.findById(req.payload.id, function(err,result){
+        if (err) { return res.status(500).json({ title: 'An error occurred',error: err }); }    
+        if (!result) { return res.status(401).json({ title: 'Not Authorised', error: {message: 'Login Again'} }) }
+        else{
+            Availabilities.findByIdAndRemove(req.params.id,function(err,result){
+                if (err) { return res.status(500).json({ title: 'Unable to delete',error: err }); } 
+                res.status(200).json({
+                    message:"deleted Successfully"
+                });
+            })
         }
     })
 });

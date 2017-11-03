@@ -1,33 +1,44 @@
-var transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-      user: 'ashokona@gmail.com',
-      pass: 'F!ghtClub'
-    }
-  });
+const nodemailer = require('nodemailer');
+const Promise = require('bluebird');
+const config = require('./config');
 
 
+var MailService = function (data) {
 
-  transport.close();
-  
-//   var mailOptions = {
-//     from: "ashokona@gmail.com",
-//     to: user.Email_Address,
-//     subject: "Account Verification Token",
-//     generateTextFromHTML: true,
-//     html: '<p>hi</P>'
-//   };
+    return new Promise(function (resolve, reject) {
+        let transporter = nodemailer.createTransport({
+            host: config.host,
+            port: config.port,
+            service: "Gmail",
+            secure: false,
+            auth: {
+                user: config.email,
+                pass: config.password
+            }
+        });
+        let mailOptions = {
+            from: '"' + config.sender + '" <' + config.email + '>',
+            to: data.to,
+            subject: data.subject,
+            text: data.text,
+            html: data.html
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                reject({
+                    success: false,
+                    error: error,
+                    data: null
+                });
+            }
+            resolve({
+                success: true,
+                error: null,
+                data: mailOptions
+            });
+        });
+    });
 
-// Send the email
-// smtpTrans = nodemailer.createTransport({
-//     service: 'Gmail', 
-//     auth: {
-//         XOAuth2: {
-//             user: "ashokona@gmail.com", // Your gmail address.
-//             pass:"F!ghtClub",                                      // Not @developer.gserviceaccount.com
-//             clientId: "462311462909-9c8rcamta8amlbfa7l2kt7ga90i5du0q.apps.googleusercontent.com",
-//             clientSecret: "x1MO0WfDi9MIUmYST7d6Wn5G",
-//             refreshToken: "1/f79RUCr655DvIaDShwme0bNUi9OJX9qpvI5-tkLcE6Y"
-//           }
-//     }
-// })
+}
+
+module.exports = MailService;

@@ -105,7 +105,7 @@ router.post('/save', function(req, res, next) {
   var user = new User();
 
     user.Firstname = req.body.Firstname;
-    user.LastName = req.body.LastName;
+    user.Lastname = req.body.Lastname;
     user.Referred_By = req.body.Referred_By;
     user.setPassword(req.body.Password);
     user.Email_Address = req.body.Email_Address;
