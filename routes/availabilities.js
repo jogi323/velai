@@ -22,14 +22,14 @@ router.get('/all', auth.required, function(req, res, next) {
 });
 
 router.post('/query', auth.required, function(req, res, next) {
-    console.log(req.body)
+    console.log(req.body.Position);
     User.findById(req.payload.id, function(err,user){
         if (err) { return res.status(500).json({ title: 'An error occurred',error: err }); }    
         if (!user) { return res.status(401).json({ title: 'Not Authorised', error: {message: 'Login Again'} }) }
         else{
             if(typeof  req.body.Date !== 'undefined' && typeof req.body.Hours_Guaranteed == 'undefined'){
                 Availabilities.find({Date:req.body.Date})
-                    .where('Hired').eq('NotHired')
+                    //.where('Hired').eq('NotHired')
                     .populate({
                         path: 'JS_id',
                         // match: { Position: { $eq: 'Dental Assistant' }, Hourly_Pay: { $eq: 5 }},
@@ -58,6 +58,7 @@ router.post('/query', auth.required, function(req, res, next) {
                 })
             }
             else if(req.body.Position != 'undefined'){
+                console.log("position");
                 Availabilities.find({Date:req.body.Date})
                     .where('Hired').eq('NotHired')
                     .where('Hours_Guaranteed').eq(req.body.Hours_Guaranteed)
